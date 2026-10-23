@@ -1,0 +1,19 @@
+extends: default
+
+rules:
+  braces:
+    level: error
+    max-spaces-inside: 1
+  comments:
+    level: error
+    min-spaces-from-content: 1
+  document-start:
+    level: error
+    present: false # Don't need document start markers
+  line-length: disable
+  truthy:
+    level: error
+    check-keys: false # To allow 'on' of GitHub Actions
+  quoted-strings:
+    level: error
+    required: only-when-needed # To keep consistent style
