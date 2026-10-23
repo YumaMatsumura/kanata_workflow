@@ -1,0 +1,64 @@
+name: 作業・調査の依頼
+description: 調査・設計・実装などの目的、対象範囲、完了条件を整理します。
+title: '[作業] '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        目的と完了条件を具体的に書いてください。未定の項目は「未定」で構いません。
+        APIキーやパスワードなどの秘密情報は記載しないでください。
+  - type: dropdown
+    id: category
+    attributes:
+      label: 作業の種類
+      options:
+        - 調査
+        - 設計
+        - 実装・機能追加
+        - 改善・リファクタリング
+        - 試験
+        - ドキュメント
+        - 保守
+    validations:
+      required: true
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 背景・目的
+      description: 何に困っていて、何を達成したいですか？
+      placeholder: 例：新規パッケージの作成時に、共通設定の記入漏れを防ぎたい。
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: 対象範囲
+      description: 対象の規約・ツール・設定と、今回変更しない部分を書いてください。決まっていなければ「未定」。
+      placeholder: |
+        対象：パッケージ生成ツール
+        今回やらないこと：既存ROSパッケージの一括更新
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 完了条件
+      description: 何を確認できたら完了ですか？ 調査なら、比較結果や決定事項などの成果物を書いてください。
+      placeholder: |
+        - [ ] 指定した種類のパッケージを生成できる
+        - [ ] 確認結果と未確認の点を記録する
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: 進め方・確認方法
+      description: 進め方の候補と理由、lint・自動テスト・生成物の確認などの予定を書いてください。未定でも構いません。
+      placeholder: |
+        進め方：
+        確認する内容・環境：
+  - type: textarea
+    id: references
+    attributes:
+      label: 参考・補足
+      description: 関連Issueや仕様、資料、制約など。原因や効果の推測は、確認済みの事実と分けて書いてください。

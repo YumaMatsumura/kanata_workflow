@@ -1,0 +1,59 @@
+name: 不具合の報告
+description: 期待した動作、実際の動作、発生条件を整理します。
+title: '[不具合] '
+body:
+  - type: markdown
+    attributes:
+      value: |
+        分からない項目は「不明」と記載してください。
+        ログに含まれる秘密情報や個人情報は除いてください。
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期待した動作
+      placeholder: 本来はどのように動くはずでしたか？
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: 実際の動作・影響
+      description: エラー、生成物の不備、意図しないファイル変更など、確認した内容と影響を書いてください。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 発生条件・再現手順
+      description: コマンド、設定ファイル、操作、発生頻度を書いてください。再現できない場合は発生時の状況を書いてください。
+      placeholder: |
+        1. 使用したコマンド・設定：
+        2. 実行した操作：
+        3. 発生したタイミング：
+        発生頻度：
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: 実行環境
+      description: 関係する項目だけ、分かる範囲で記入してください。未コミットなら関係する変更内容も記載してください。
+      placeholder: |
+        対象機能・ファイル：
+        ブランチ・コミット：
+        実行場所：ローカル／Codex／GitHub Actionsなど
+        OS：
+        Python・pre-commit・Codexなどのバージョン：
+        生成タイプ・指定引数：
+        生成物のビルドに関する問題ならROS 2のバージョン：
+  - type: textarea
+    id: logs
+    attributes:
+      label: 関連ログ
+      description: 必要な部分だけを貼り付けてください。コードブロック用の記号は不要です。
+      render: text
+  - type: textarea
+    id: additional
+    attributes:
+      label: 補足・原因の推測・回避方法
+      description: 画像、関連Issue、発生前の変更、一時的な回避方法など。推測は、確認済みの事実と分けて書いてください。
