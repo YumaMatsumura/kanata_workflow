@@ -1,0 +1,6 @@
+interface:
+  display_name: KANATA Fix
+  short_description: 根拠のある不具合を一件だけ修正する
+  default_prompt: $kanata-fix を使い、指定範囲の作業を行ってください。
+policy:
+  allow_implicit_invocation: false
