@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "description": "KANATAワークフロー独自のROS 2リポジトリ候補一覧。各PCにすべてを配置する必要はない。AIツールの標準設定ではない。パスは実ワークスペース基準。kanata_workflow自体は含めない。",
+  "development_branch": "main",
+  "branch_pattern": "{type}/{description_kebab_case}",
+  "codex_branch_pattern": "codex/{description_kebab_case}",
+  "codex_co_author": "Codex <noreply@openai.com>",
+  "repositories": [
+    {
+      "name": "kanata_common",
+      "path": "src/kanata_common",
+      "github_repository": "YumaMatsumura/kanata_common"
+    },
+    {
+      "name": "kanata_core",
+      "path": "src/kanata_core",
+      "github_repository": "YumaMatsumura/kanata_core"
+    },
+    {
+      "name": "kanata_operation",
+      "path": "src/kanata_operation",
+      "github_repository": "YumaMatsumura/kanata_operation"
+    }
+  ],
+  "environment": {
+    "ros_distro": "jazzy",
+    "build_command": null,
+    "test_command": null
+  }
+}
