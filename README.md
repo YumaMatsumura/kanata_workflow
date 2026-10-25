@@ -12,6 +12,7 @@
 | --- | --- | --- |
 | 人 | [BOOTSTRAP_PROMPT.md](BOOTSTRAP_PROMPT.md) | AI導入時の設定確認に使う依頼文。普段の作業では不要 |
 | 人 | [scripts/README.md](scripts/README.md) | ローカル開発環境への導入手順と確認方法 |
+| 人、AI | [scripts/REVIEW_RULES.md](scripts/REVIEW_RULES.md) | 各リポジトリへレビュー規約を配布する方法 |
 | 人、AI | [rules/](rules/) | 開発時に守る規約、Gitの使い方、変更の確認方法、説明の書き方 |
 | 人、AI | [SOURCES.md](SOURCES.md) | 規約の参考資料と、参考にした内容 |
 | AI | [AGENTS.md](AGENTS.md) | 作業開始時の入口と参照先 |
