@@ -30,3 +30,6 @@ jobs:
 
       - name: Run review rules distribution tests
         run: python -B tests/test_review_rules.py -v
+
+      - name: Run sync pull request preparation tests
+        run: python -B tests/test_review_rules_pr.py -v
