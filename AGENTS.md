@@ -13,6 +13,7 @@
 | `rules/git.md` | ブランチ・コミットの規約とAIによるGit操作の境界 |
 | `rules/testing.md` | 検証方法、結果の記録、作業別の実行範囲 |
 | `rules/review.md` | 変更のレビューで確認する観点と、指摘のまとめ方 |
+| `rules/error-review.md` | エラー系専用レビューの確認項目と報告形式 |
 | `rules/communication.md` | 会話・Issue・PRの説明方法、図とスクリーンショットの使い方 |
 | `skills/` | AI向けの作業別手順とCodex用の設定 |
 | `config/repositories.json` | ROS 2の対象リポジトリの候補一覧 |
@@ -56,6 +57,7 @@
 | `kanata-feat` | 指定機能の実装 | 依頼された機能と必要なテスト |
 | `kanata-audit` | 改善候補の調査 | 原則読み取りのみ。修正・Issue登録なし |
 | `kanata-review` | 指定された差分・PRのレビュー | 読み取りと会話での報告のみ。修正・GitHubへの投稿なし |
+| `kanata-error-review` | 異常時の動作に絞った差分・PRのレビュー | 読み取りと版情報付きの報告のみ。修正・GitHubへの投稿なし |
 
 通常の自然文による依頼も、この入口と`rules/`に従って作業できる。
 会話中の例示・引用や方法の質問は実行依頼と区別する。
@@ -65,7 +67,7 @@
 
 Skillは`$kanata-refactor`などの名前、またはUIで明示的に選択する。
 選択されたSkillの`WORKFLOW_ROOT/skills/<skill-name>/SKILL.md`を読み、その手順で実行する。
-6つのSkillは`agents/openai.yaml`で`allow_implicit_invocation: false`とし、暗黙の選択を無効にする。
+これらのSkillは`agents/openai.yaml`で`allow_implicit_invocation: false`とし、暗黙の選択を無効にする。
 他のAIを使う場合は、規約・手順の読み込ませ方を確認する。Codex用の設定・呼び出しが使えるとは仮定しない。
 
 ## 適用範囲

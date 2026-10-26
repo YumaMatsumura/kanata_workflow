@@ -14,7 +14,7 @@
 
 1. ~/kanata_ws/AGENTS.mdを入口に規約を読み、読めたファイルとその場所を教えてください。
 2. AGENTS.mdが案内する作業別の手順を参照できるか確認してください。
-   Codexの場合は、6つのSkillが使えるかも確認してください。
+   Codexの場合は、AGENTS.mdの作業メニューにあるSkillが使えるかも確認してください。
 3. ~/kanata_ws/srcの配置を確認してください。
    Jetsonにkanata_commonとkanata_core、オペレータPCにkanata_commonとkanata_operation、
    開発用PCに3つすべてを置く、といった配置例があります。

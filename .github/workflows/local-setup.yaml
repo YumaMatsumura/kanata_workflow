@@ -30,3 +30,6 @@ jobs:
 
       - name: Run local setup tests
         run: python -B tests/test_setup.py -v
+
+      - name: Test error review rule context
+        run: python -B tests/test_rule_context.py -v

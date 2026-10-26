@@ -186,6 +186,7 @@ class SetupTests(unittest.TestCase):
                 "kanata-feat",
                 "kanata-audit",
                 "kanata-review",
+                "kanata-error-review",
             },
         )
         self.assertEqual(
@@ -209,17 +210,19 @@ class SetupTests(unittest.TestCase):
         self.assertEqual(before, snapshot(self.ws))
 
     def test_apply_adds_review_to_existing_installation(self) -> None:
-        self.assertEqual(self.run_setup("--apply").returncode, 0)
-        review = self.ws / ".agents" / "skills" / "kanata-review"
-        review.unlink()
-        before = snapshot(self.ws)
-        result = self.run_setup("--apply")
-        self.assertEqual(result.returncode, 0, result.stderr)
-        after = snapshot(self.ws)
-        self.assertEqual(set(after) - set(before), {".agents/skills/kanata-review"})
-        for key, value in before.items():
-            self.assertEqual(after.get(key), value, key)
-        self.assertEqual(review.resolve(), self.workflow / "skills" / "kanata-review")
+        for name in ("kanata-review", "kanata-error-review"):
+            with self.subTest(skill=name):
+                self.assertEqual(self.run_setup("--apply").returncode, 0)
+                review = self.ws / ".agents" / "skills" / name
+                review.unlink()
+                before = snapshot(self.ws)
+                result = self.run_setup("--apply")
+                self.assertEqual(result.returncode, 0, result.stderr)
+                after = snapshot(self.ws)
+                self.assertEqual(set(after) - set(before), {f".agents/skills/{name}"})
+                for key, value in before.items():
+                    self.assertEqual(after.get(key), value, key)
+                self.assertEqual(review.resolve(), self.workflow / "skills" / name)
 
     def test_check_passes_after_install_without_writes(self) -> None:
         self.assertEqual(self.run_setup("--apply").returncode, 0)
