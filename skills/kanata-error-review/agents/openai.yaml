@@ -1,0 +1,6 @@
+interface:
+  display_name: KANATA Error Review
+  short_description: 異常時の動作を専用の観点で確認し、規約の版と根拠を添えて報告する
+  default_prompt: $kanata-error-review を使い、指定した差分またはPRの異常時の動作を確認し、規約の版情報と根拠を添えて報告してください。
+policy:
+  allow_implicit_invocation: false

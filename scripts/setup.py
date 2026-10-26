@@ -22,6 +22,7 @@ SKILL_NAMES = (
     "kanata-feat",
     "kanata-audit",
     "kanata-review",
+    "kanata-error-review",
 )
 LEGACY_NAMES = ("refactor", "commit", "fix", "feat", "issue", "docs")
 

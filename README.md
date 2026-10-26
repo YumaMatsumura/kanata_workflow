@@ -14,6 +14,7 @@
 | 人 | [scripts/README.md](scripts/README.md) | ローカル開発環境への導入手順と確認方法 |
 | 人、AI | [scripts/REVIEW_RULES.md](scripts/REVIEW_RULES.md) | レビュー規約の配布と、同期PRの自動作成の設定 |
 | 人、AI | [rules/](rules/) | 開発時に守る規約、Gitの使い方、変更の確認方法、説明の書き方 |
+| 人、AI | [rules/error-review.md](rules/error-review.md) | エラー系専用レビューの確認項目と報告形式。自動実行は未導入 |
 | 人、AI | [SOURCES.md](SOURCES.md) | 規約の参考資料と、参考にした内容 |
 | AI | [AGENTS.md](AGENTS.md) | 作業開始時の入口と参照先 |
 | AI | [skills/](skills/) | 調査・実装・修正・コミット等の作業別手順 |
@@ -21,3 +22,8 @@
 開発規約は、まず[rules/common.md](rules/common.md)を読み、作業に応じて各規約を参照してください。
 プロジェクト全体の設計・操作・開発ガイドの管理先は`kanata_docs`です。
 `config/`・`scripts/`・`tools/`は、設定と開発支援ツールを置く場所です。
+
+エラー系専用レビューは[kanata-error-review](skills/kanata-error-review/SKILL.md)で依頼できます。
+例えば、`$kanata-error-review kanata_coreの未コミット変更を確認してください。`と指定します。
+規約のコミットIDと未コミット変更、実際のファイル内容を区別するハッシュを添えて報告します。
+このSkillの追加だけで、GitHub上の自動レビューが有効になるわけではありません。
