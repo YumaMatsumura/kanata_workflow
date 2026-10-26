@@ -23,7 +23,66 @@ GitHub上でも、そのリポジトリだけでKANATAのレビュー基準を�
 配布対象に含まれない補足資料へのリンクは、原本の同じコミットへのGitHubリンクに変わります。
 その補足資料まで、オフラインで配布先に含まれるわけではありません。
 
-## 配布する
+## 自動で同期用PRを作る
+
+`sync-review-rules`ワークフローは、原本の規約などが`kanata_workflow`の`main`へ取り込まれたときに動きます。
+最初に原本のコミットを1つに決め、次の3リポジトリへ同じ版を配布します。
+
+- `kanata_common`
+- `kanata_core`
+- `kanata_operation`
+
+流れは「原本の更新をmainへ取り込む → 自動テスト → コピーを生成・照合 → 同期用PRを作成・更新」です。
+同期先は[config/repositories.json](../config/repositories.json)の`github_repository`から取得します。
+ローカルのPCに、3つのリポジトリを配置する必要はありません。
+
+| 場面 | 動作 |
+| --- | --- |
+| 同期先のmainとの差分がある | `chore/sync-review-rules`ブランチでPRを作成 |
+| 同じブランチのPRが開いている | そのPRを更新。更新ごとにPRを増やさない |
+| 差分がない | 新しいPRを作らない |
+| 配布ツールが衝突を検出する | そのリポジトリの同期を停止し、Actionsで失敗を表示 |
+
+同期先へ書き込むのは、この資料の表にある生成ファイルだけです。
+同期先のmainへ直接書き込んだり、PRを自動マージしたりしません。
+生成したPRには、取得元のコミットと確認結果を日本語で記載します。同期先のCI結果は、PR上で別途確認します。
+
+`chore/sync-review-rules`は自動同期専用です。手作業のコミットは加えないでください。
+更新時に、このブランチの内容は生成した差分に置き換わります。
+規約を直す場合は、`kanata_workflow`の原本を変更します。
+
+通常のPRでは、規約配布・同期PRの準備処理をテストするだけです。他リポジトリへの書き込みは行いません。
+
+### 初回に必要な認証設定
+
+他リポジトリへブランチ・PRを作るため、追加の認証が必要です。
+GitHubが提供する`GITHUB_TOKEN`は、通常、そのワークフローのリポジトリに権限が限定されます。
+今回は、権限を細かく指定できるfine-grained personal access tokenを使います。
+
+1. GitHubのアカウント設定から、fine-grained personal access tokenを作成します。
+   作成方法は[GitHubの公式説明](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)を参照してください。
+2. Resource ownerは`YumaMatsumura`、Repository accessは対象の3リポジトリだけにします。
+3. Repository permissionsで、`Contents`と`Pull requests`をそれぞれ`Read and write`にします。
+   `Metadata`の読み取りは自動で含まれます。Actionsのワークフローを書き換える権限は不要です。
+4. 有効期限を設定します。期限切れになった場合は、トークンを更新する必要があります。
+5. **`kanata_workflow`**のSettings → Secrets and variables → Actionsで、
+   `REVIEW_RULES_SYNC_TOKEN`という名前のRepository secretに保存します。
+
+トークンの値は、ファイルやコミット、チャットへ記載しません。
+トークンが未設定なら、自動同期はエラーを表示して停止します。ローカルの配布ツールは、トークンなしで使えます。
+
+初回の設定後や再試行には、GitHubのActions → `sync-review-rules` → Run workflowで`main`を選びます。
+手動実行でも、その時点の最新のmainを配布元にします。過去のイベントを再実行して、規約を古い版へ戻さないためです。
+実行中の同期は途中で取り消さず、次の同期を待機させます。
+
+自動同期の実行対象は、`rules/`、`SOURCES.md`、対象一覧、配布・PR準備スクリプト、同期ワークフローの変更です。
+READMEだけの更新などでは起動しません。同期を始める前に、配布・PR準備処理の自動テストを実行します。
+
+PRの作成・更新には[peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request)を使います。
+追加トークンの利用により、生成したPRに対する通常のCIも起動できます。
+認証方法の説明は[GitHubの公式資料](https://docs.github.com/en/actions/tutorials/authenticate-with-github_token)も参照してください。
+
+## 手元で配布する
 
 Python 3.10以上とGitを使います。追加のPythonパッケージや、ROS 2は不要です。
 対象リポジトリは、すでに配置されているものだけを指定します。cloneやGitの初期化は行いません。
@@ -69,8 +128,9 @@ Python 3.10以上とGitを使います。追加のPythonパッケージや、ROS
 例えば、`--source-ref`に`SOURCE.json`の`source_commit`の値を指定すると、その版との一致を検査できます。
 そのコミットが、手元の`kanata_workflow`に存在する必要があります。
 
-原本の規約を更新しても、配布先は自動では変わりません。
-通常のCIで毎回最新の規約を取得する仕組みにもしていません。PRの途中で判断基準が勝手に変わるのを避けるためです。
+自動同期の認証設定が済んでいれば、mainへの取り込み後に同期PRが作られます。
+各リポジトリのmainに反映されるのは、その同期PRをマージした後です。
+PRの途中で参照する規約を勝手に差し替えず、取り込む版をPRの差分で確認できます。
 
 ## 既存のファイルがあるとき
 
@@ -78,7 +138,8 @@ Python 3.10以上とGitを使います。追加のPythonパッケージや、ROS
 `AGENTS.override.md`や、配布先のシンボリックリンクがある場合も停止します。
 内容と指示の優先関係を確認してから、統合方法を決めてください。
 
-このツールは、ステージ操作・コミット・push・GitHubの設定変更を行いません。
+手元で使う`sync_review_rules.py`は、ステージ操作・コミット・push・GitHubの設定変更を行いません。
+Actionsでの自動同期は、生成ファイルを専用ブランチへコミット・pushし、PRを作成・更新する別の処理です。
 
 ## 自動レビューとの関係
 
@@ -102,7 +163,10 @@ Code Reviewの有効化と、実際のPRで規約が使われるかの確認は�
 
 ```bash
 python3 -B tests/test_review_rules.py -v
+python3 -B tests/test_review_rules_pr.py -v
 ```
 
 一時フォルダのGitリポジトリを使い、規約の取得元の固定、単独リポジトリへの配置、既存ファイルの保護、更新と失敗時の復元を確認します。
-GitHub Actionsの`review-rules`でも同じテストを実行します。AIによるレビューは実行しません。
+同期先一覧の取得、同期PR用の文章と対象ファイルの生成、差分がない場合や既存の変更がある場合も確認します。
+GitHub Actionsの`review-rules`でも同じテストを実行します。これらのテストでは、GitHubへの書き込みやAIによるレビューは実行しません。
+トークン設定後の実際のPR作成・更新は、GitHub上で別途確認します。

@@ -1,0 +1,128 @@
+name: sync-review-rules
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - rules/**
+      - SOURCES.md
+      - config/repositories.json
+      - scripts/sync_review_rules.py
+      - scripts/prepare_review_rules_pr.py
+      - .github/workflows/sync-review-rules.yaml
+  workflow_dispatch:
+
+# Read the latest main when this run starts; queued older events cannot roll rules back.
+concurrency:
+  group: sync-review-rules
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    if: github.ref == 'refs/heads/main' && github.repository == 'YumaMatsumura/kanata_workflow'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      source_sha: ${{ steps.matrix.outputs.source_sha }}
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Check sync credentials
+        env:
+          SYNC_TOKEN: ${{ secrets.REVIEW_RULES_SYNC_TOKEN }}
+        run: |
+          if [ -z "$SYNC_TOKEN" ]; then
+            echo "::error::REVIEW_RULES_SYNC_TOKEN is missing. See scripts/REVIEW_RULES.md."
+            exit 1
+          fi
+
+      - name: Check out latest source rules
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Test distribution and sync preparation
+        run: |
+          python -B tests/test_review_rules.py -v
+          python -B tests/test_review_rules_pr.py -v
+
+      - name: Select targets and pin the source commit
+        id: matrix
+        run: python -B scripts/prepare_review_rules_pr.py --matrix --github-output "$GITHUB_OUTPUT"
+
+  sync:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.prepare.outputs.matrix) }}
+    name: Sync ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out pinned source rules
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.prepare.outputs.source_sha }}
+          path: source
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check out target main
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ matrix.repository }}
+          ref: main
+          path: target
+          token: ${{ secrets.REVIEW_RULES_SYNC_TOKEN }}
+          persist-credentials: false
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Generate and verify review rules
+        id: generate
+        env:
+          SOURCE_SHA: ${{ needs.prepare.outputs.source_sha }}
+        run: |
+          python -B source/scripts/prepare_review_rules_pr.py \
+            --target target \
+            --source-ref "$SOURCE_SHA" \
+            --body-file "$RUNNER_TEMP/review-rules-pr.md" \
+            --github-output "$GITHUB_OUTPUT" \
+            --apply
+
+      - name: Create or update sync pull request
+        id: pr
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.REVIEW_RULES_SYNC_TOKEN }}
+          path: target
+          base: main
+          branch: chore/sync-review-rules
+          add-paths: ${{ steps.generate.outputs.add_paths }}
+          commit-message: |
+            chore(review): sync shared review rules
+
+            Source: YumaMatsumura/kanata_workflow@${{ needs.prepare.outputs.source_sha }}
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          title: 共通レビュー規約を同期
+          body-path: ${{ runner.temp }}/review-rules-pr.md
+
+      - name: Record sync result
+        env:
+          TARGET_REPOSITORY: ${{ matrix.repository }}
+          PR_URL: ${{ steps.pr.outputs.pull-request-url }}
+        run: |
+          printf '%s: %s\n' "$TARGET_REPOSITORY" "${PR_URL:-No changes}" >> "$GITHUB_STEP_SUMMARY"
